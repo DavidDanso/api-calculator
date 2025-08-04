@@ -1,0 +1,12 @@
+FROM nginx:alpine
+
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy your HTML file
+COPY index.html /usr/share/nginx/html/
+
+# Expose port 3000 (live-server default)
+EXPOSE 3000
+
+

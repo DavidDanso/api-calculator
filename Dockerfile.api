@@ -13,11 +13,11 @@ RUN pip install --upgrade pip
 # Install dependencies
 RUN pip install -r requirements.txt
 
-# Copy your application code
+# Copy API code
 COPY . .
 
-# Expose port 8081 (like opening a window for visitors)
-EXPOSE 8081
+# Expose Flask port
+EXPOSE 8000
 
-# Command to run when container starts
+# Run Flask in development mode
 CMD ["python3", "app.py"]

@@ -1,49 +1,52 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 import logging
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
+CORS(app)
 
-@app.route('/', methods=['GET'])
+@app.route('/')
+def serve_index():
+    """Serve the main web interface"""
+    return send_from_directory('static', 'index.html')
+
+@app.route('/health', methods=['GET'])
 def health_check():
-    """Simple health check endpoint"""
+    """API health check endpoint"""
     return jsonify({
         "status": "healthy",
         "message": "Flask Calculator API is running!",
         "endpoints": {
             "POST /calculate": "Perform calculations with two numbers",
-            "GET /": "Health check"
+            "POST /batch-calculate": "Batch calculations",
+            "GET /health": "Health check",
+            "GET /": "Web interface"
         }
     })
 
 @app.route('/calculate', methods=['POST'])
 def calculate():
-    """
-    Calculate sum, difference, product, and quotient of two numbers
-    Expected JSON payload: {"num1": float, "num2": float}
-    """
+    """Calculate sum, difference, product, and quotient of two numbers"""
     try:
-        # Get JSON data from request
         data = request.get_json()
         
-        # Validate input
         if not data:
             return jsonify({"error": "No JSON data provided"}), 400
         
         if 'num1' not in data or 'num2' not in data:
             return jsonify({"error": "Both 'num1' and 'num2' are required"}), 400
         
-        # Extract numbers and convert to float
         try:
             num1 = float(data['num1'])
             num2 = float(data['num2'])
         except (ValueError, TypeError):
             return jsonify({"error": "Both numbers must be valid numeric values"}), 400
         
-        # Perform calculations
         results = {
             "input": {
                 "num1": num1,
@@ -66,10 +69,7 @@ def calculate():
 
 @app.route('/batch-calculate', methods=['POST'])
 def batch_calculate():
-    """
-    Bonus endpoint: Calculate operations for multiple number pairs
-    Expected JSON: {"pairs": [{"num1": float, "num2": float}, ...]}
-    """
+    """Batch calculate operations for multiple number pairs"""
     try:
         data = request.get_json()
         
@@ -111,5 +111,4 @@ def batch_calculate():
         return jsonify({"error": "Internal server error"}), 500
 
 if __name__ == '__main__':
-    # Run the app on port 8080 for containerization
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)

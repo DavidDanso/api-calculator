@@ -1,0 +1,33 @@
+# docker-compose.yml - Run both services together
+version: "3.8"
+
+services:
+  # Flask API container
+  flask-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app.py:/app/app.py # Hot reload for development
+    networks:
+      - calculator-net
+
+  # Web server container using Nginx
+  web-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html # Hot reload for development
+    depends_on:
+      - flask-api
+    networks:
+      - calculator-net
+
+networks:
+  calculator-net:
+    driver: bridge
