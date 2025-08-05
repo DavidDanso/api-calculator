@@ -3,21 +3,42 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      # Log in to ECR
       - echo Logging in to Amazon ECR...
+      # Login to ECR so we can push images
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo Pre-build completed on `date`
 
   build:
     commands:
-      # Build the Docker image
       - echo Build started on `date`
-      - echo Building the Docker image...
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
-      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+
+      # Build Flask API container
+      - echo Building the Flask API Docker image...
+      - docker build -f Dockerfile.api -t $FLASK_IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $FLASK_IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$FLASK_IMAGE_REPO_NAME:$IMAGE_TAG
+
+      # Build Web Server container
+      - echo Building the Web Server Docker image...
+      - docker build -f Dockerfile.web -t $WEB_IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $WEB_IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$WEB_IMAGE_REPO_NAME:$IMAGE_TAG
 
   post_build:
     commands:
-      # Push the image to ECR
       - echo Build completed on `date`
-      - echo Pushing the Docker image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+
+      # Push Flask API image to ECR
+      - echo Pushing the Flask API Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$FLASK_IMAGE_REPO_NAME:$IMAGE_TAG
+
+      # Push Web Server image to ECR
+      - echo Pushing the Web Server Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$WEB_IMAGE_REPO_NAME:$IMAGE_TAG
+
+      # Create imagedefinitions.json for ECS deployment
+      - echo Writing image definitions file...
+      - printf '[{"name":"flask-api","imageUri":"%s"},{"name":"web-server","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$FLASK_IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$WEB_IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+      - cat imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
