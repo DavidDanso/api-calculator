@@ -1,5 +1,5 @@
 # Start with a Python base image (like choosing a foundation for your house)
-FROM python:3.12-alpine
+FROM public.ecr.aws/docker/library/python:3.11alpine
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -10,14 +10,14 @@ COPY requirements.txt .
 # Upgrade pip version
 RUN pip install --upgrade pip
 
-# Install dependencies
-RUN pip install -r requirements.txt
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy API code
-COPY . .
+# Copy application code
+COPY app.py .
 
 # Expose Flask port
 EXPOSE 8000
 
-# Run Flask in development mode
+# Run Flask app
 CMD ["python3", "app.py"]
