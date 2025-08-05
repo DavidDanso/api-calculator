@@ -1,5 +1,5 @@
 # Start with a Python base image (like choosing a foundation for your house)
-FROM public.ecr.aws/docker/library/python:3.11alpine
+FROM public.ecr.aws/docker/library/python:3.9-slim
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -19,5 +19,5 @@ COPY app.py .
 # Expose Flask port
 EXPOSE 8000
 
-# Run Flask app
+# Run Flask in development mode
 CMD ["python3", "app.py"]
