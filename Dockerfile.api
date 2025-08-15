@@ -1,5 +1,6 @@
 # dockerfile.api
-FROM public.ecr.aws/lambda/python:3.11
+FROM public.ecr.aws/docker/library/python:3.11-slim
+
 
 # Set working directory
 WORKDIR /app
