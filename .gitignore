@@ -91,4 +91,4 @@ coverage/
 
 # Test artifacts
 .pytest_cache/
-.tox/
+.tox/.terraform/
