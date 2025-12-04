@@ -119,7 +119,7 @@
         resultDiv.textContent = "Checking...";
 
         try {
-          const response = await fetch(`${API_BASE}/`);
+          const response = await fetch(`${API_BASE}/health`);
           const data = await response.json();
 
           resultDiv.className = "result success";
