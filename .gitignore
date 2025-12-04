@@ -33,6 +33,9 @@ venv.bak/
 # Ignore the Makefile
 Makefile
 
+# terraform-one
+terraform-one/
+
 # Node.js
 node_modules/
 npm-debug.log*

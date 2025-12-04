@@ -1,6 +1,3 @@
-# docker-compose.yml - Run both services together
-version: "3.8"
-
 services:
   # Flask API container
   flask-api:
