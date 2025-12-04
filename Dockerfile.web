@@ -1,4 +1,4 @@
-FROM nginx:alpine
+FROM public.ecr.aws/nginx/nginx:alpine
 
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
